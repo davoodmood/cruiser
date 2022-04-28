@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Cruiser targets and locks on specific time-duration after a new ethereum block is being mined for transaction submittion.",
+  "description": "Cruiser targets and locks on specific time-duration after a new Ethereum block is being mined for transaction submitting.",
   "main": "index.js",
   "author": "David (Davood) H. Mood",
   "license": "MIT",

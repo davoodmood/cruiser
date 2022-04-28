@@ -4,7 +4,8 @@ import cruiserDemoABI from "../abi/cruiser_test_abi.json";
 import _ from "lodash";
 
 export let provider: providers.JsonRpcProvider | providers.WebSocketProvider;
-const private_key = config.get("PRIVATE_KEY")
+const private_key = config.get("PRIVATE_KEY") as string;
+const mnemonic = config.get("MNEMONIC") as string;
 const network = config.get("NETWORK") as number;
 const isDemo = config.get("isDemo") as boolean;
 const cruiserAddress = config.get("CONTRACT_ADDRESS") as string;
@@ -21,9 +22,9 @@ if (private_key === "") {
 // }
 
 if (rpc_url.includes("https://speedy")) {
-    provider = new providers.JsonRpcProvider(rpc_url));
+    provider = new providers.JsonRpcProvider(rpc_url);
 } else if (rpc_url.includes("wss")) {
-    provider = new providers.WebSocketProvider(rpc_url));
+    provider = new providers.WebSocketProvider(rpc_url);
 } else {
     provider = new providers.JsonRpcProvider(
         isDemo ? 
@@ -34,8 +35,10 @@ if (rpc_url.includes("https://speedy")) {
     );
 }
 
-const signingWallet: Wallet = new Wallet(private_key);
-const contract: Contract = Contract(cruiserAddress,cruiserDemoABI, provider)
+const signingWallet: Wallet = private_key.length > 0 ? 
+    new Wallet(private_key.trim()):
+    Wallet.fromMnemonic(mnemonic.trim());
+const contract: Contract = new Contract(cruiserAddress, cruiserDemoABI, provider)
 
 async function main() {
     console.log("Wallet Address: " + await signingWallet.getAddress());
@@ -48,10 +51,7 @@ async function main() {
             Block Number: ${timestamp} (${new Date(timestamp * 1000)})
             Block Number: ${now} (${new Date(now * 1000)})
         `);
-
-        
-        
-    }
+    });
 }
 
 main();

@@ -17,3 +17,4 @@ const RPC_URL = process.env.RPC_URL || `https://speedy-nodes-nyc.moralis.io/${pr
 
 
 const isDemo: boolean = true; // default if .env is not set.
+const PRIVATE_KEY = ''
