@@ -42,45 +42,66 @@ const wallet: Wallet = private_key.length > 0 ?
 
 const signingWallet = wallet.connect(provider);
 
-const options = { gasLimit: 9000000, gasPrice: 50000000000 };
+const options = { gasLimit: 24531 , gasPrice: 9900000000000 };
 const contract: Contract = new Contract(cruiserAddress, cruiserDemoABI, signingWallet);
-// const filter = {
-//     address: THE_ADDRESS_OF_YOUR_CONTRACT,
-//     topics: [
-//         // the name of the event, parnetheses containing the data type of each event, no spaces
-//         utils.id("Stamped(uint,uint,string)")
-//     ]
-// }
+
 async function main() {
     console.log("Wallet Address: " + await signingWallet.getAddress());
     provider.on('block', async (_blockNumber: number) => {
         console.time(`Execution Time - Block #${_blockNumber}`);
         const now = new Date().getTime() / 1000;
         let {timestamp} = await provider.getBlock(_blockNumber);
-        const diff = now - timestamp;
+        const clientDiff = now - timestamp;
         
-        if (diff < 2.7 || diff % 3 < 2.7) {
+        if ( (0 < clientDiff && clientDiff < 2.7) || (0 < clientDiff % 3) && (clientDiff % 3 < 2.7) ) {
             // const estimateGas: any = await contract.shell().provider.estimateGas();
             // options.gasLimit = estimateGas.mul(2);
-            const tx = await contract.shell(options);
             
-            const rc = await tx.wait();
-            const res = rc.events.find((event: { event: string; }) => event.event === 'Stamped');
-            const [blocknumber, blockTimestamp, msg] = res.args;
-            if (res) {
-                console.log("Event: ", blocknumber, blockTimestamp, msg)
-                console.timeEnd(`Execution Time - Block #${_blockNumber}`);
-            };
+            try {
+                const tx = await contract.shell(options);
+            
+                const rc = await tx.wait();
+                const res = rc.events.find((event: { event: string; }) => event.event === 'Stamped');
+                const [blockTimestamp, blocknumber, msg] = res.args;
+                if (res) {
+                    console.timeEnd(`Execution Time - Block #${_blockNumber}`);
+                    const cruiserDiff = blockTimestamp.toNumber() - now;
+                    console.log(`Data & current time ${msg}: 
+                    Block Number: ${_blockNumber} 
+                    Shelled Block Number: #${blocknumber.toString()}
+                    Block TimeStamp: ${timestamp} (${new Date(timestamp * 1000)})
+                    Client TimeStamp: ${now} (${new Date(now * 1000)})
+                    Shelled Block TimeStamp: ${blockTimestamp.toString()} (${new Date(blockTimestamp.toNumber() * 1000)})
+                    Client Time Diff (Sec.): ${clientDiff} 
+                    Shelled/Cruiser Time Diff (Sec.): ${cruiserDiff}
+                    Cruiser Action Duration = Execution Time
+                    
+                    `);
+                };
+            } catch (error: any) {
+                // console.log(error.error.code, " ", error.error.message)
+                switch (error.error.message) {
+                    case "already known":
+                        console.log(
+                            "%cPrevious transaction is still in the Mempool!\n\n",
+                            "color:yellow;font-family:system-ui;font-size:12px;-webkit-text-stroke: 1px gray;font-weight:bold"
+                        );
+                        break;
+                    case "insufficient funds for gas * price + value": 
+                        console.log(
+                            "%cYour wallet doesn't have enough fund.\n\n",
+                            "background-color:yellow; color:white; font-family:system-ui;font-size:12px;-webkit-text-stroke: 1px gray;font-weight:bold"
+                        );
+                        break;
+                    default:
+                        console.log("Error Code: ", error.error.code, " Message: ", error.error.message);
+                        console.log( error.error.code, error.error.message, "\n\n")
+                        break;
+                }
+            }
         } else {
-            console.timeEnd(`Execution Time - Block #${_blockNumber}`);
+            // console.timeEnd(`Execution Time - Block #${_blockNumber}`);
         }
-
-        console.log("block data & current time: ", `
-            Block Number: ${_blockNumber}
-            Block TimeStamp: ${timestamp} (${new Date(timestamp * 1000)})
-            Cruiser TimeStamp: ${now} (${new Date(now * 1000)})
-            Time Diff (Sec.): ${now - timestamp}
-        `);
     });
 }
 
