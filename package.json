@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "dev": "nodemon --config nodemon.json src/index.ts",
+    "dev": "nodemon --config nodemon.json src/app.ts",
     "start": "npx ts-node --project tsconfig.json src/index.ts",
     "build": "tsc --project ./tsconfig.json",
     "test": "jest"

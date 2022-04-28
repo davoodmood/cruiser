@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { Wallet } from "ethers";
+import { Mnemonic } from "ethers/lib/utils";
 
 enum network {
     ethereum,
@@ -11,11 +12,12 @@ enum network {
     bscTestnet,
     polygonTestnet,
 }
+const mnemonic: string = process.env.MNEMONIC || `${Wallet.createRandom().mnemonic}`;
 
-const NETWORK = process.env.NETWORK || network.bsc;
-const CONTRACT_ADDRESS = "0x361161Ed659549b31cCa203174BE93bf2bD95c96";
-const RPC_URL = process.env.RPC_URL || `https://speedy-nodes-nyc.moralis.io/${process?.env?.RPC_API_KEY}/bsc/testnet`;
+export const NETWORK = process.env.NETWORK || network.bsc;
+export const CONTRACT_ADDRESS = "0x361161Ed659549b31cCa203174BE93bf2bD95c96";
+export const RPC_URL = process.env.RPC_URL || `https://speedy-nodes-nyc.moralis.io/${process?.env?.RPC_API_KEY}/bsc/testnet`;
 
-const isDemo: boolean = true; // default if .env is not set.
-const PRIVATE_KEY = process.env.PRIVATE_KEY || Wallet.createRandom().privateKey;
-const MNEMONIC = process.env.MNEMONIC || Wallet.createRandom().mnemonic;
+export const isDemo: boolean = true; // default if .env is not set.
+export const PRIVATE_KEY = process.env.PRIVATE_KEY || Wallet.fromMnemonic(mnemonic).privateKey;
+export const MNEMONIC = mnemonic;

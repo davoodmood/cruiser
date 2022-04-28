@@ -1,4 +1,5 @@
-require('dotenv').config()
+require('dotenv').config();
+import { Wallet } from "ethers";
 
 enum network {
     ethereum,
@@ -17,4 +18,5 @@ const RPC_URL = process.env.RPC_URL || `https://speedy-nodes-nyc.moralis.io/${pr
 
 
 const isDemo: boolean = true; // default if .env is not set.
-const PRIVATE_KEY = ''
+const PRIVATE_KEY = process.env.PRIVATE_KEY || Wallet.createRandom().privateKey;
+const MNEMONIC = process.env.MNEMONIC || Wallet.createRandom().mnemonic;
